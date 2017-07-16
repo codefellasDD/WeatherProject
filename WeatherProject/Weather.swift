@@ -12,7 +12,8 @@ import CoreLocation
 struct Weather {
     let summary:String
     let icon:String
-    let temperature:Double
+    let temperatureMax:Double
+    let temperatureMin:Double
     
     enum SerializationError:Error {
         case missing(String)
@@ -25,20 +26,21 @@ struct Weather {
         
         guard let icon = json["icon"] as? String else {throw SerializationError.missing("icon is missing")}
         
-        guard let temperature = json["temperatureMax"] as? Double else {throw SerializationError.missing("temp is missing")}
+        guard let temperatureMax = json["temperatureMax"] as? Double else {throw SerializationError.missing("temp is missing")}
         
+        guard let temperatureMin = json["temperatureMin"] as? Double else {throw SerializationError.missing("temp is missing")}
         self.summary = summary
         self.icon = icon
-        self.temperature = temperature
-        
+        self.temperatureMax = temperatureMax
+        self.temperatureMin = temperatureMin
     }
     
     
-    static let basePath = "https://api.darksky.net/forecast/f7637fb1ae0905273b364af0e27ee1aa/"
+    static let basePath = "https://api.darksky.net/forecast/4db87fec324b42b4c8172cc9ace1a174/"
     
     static func forecast (withLocation location:CLLocationCoordinate2D, completion: @escaping ([Weather]?) -> ()) {
         
-        let url = basePath + "\(location.latitude),\(location.longitude)"+"?lang=de&units=auto"
+        let url = basePath + "\(location.latitude),\(location.longitude)"+"?lang=de&units=us"
         let request = URLRequest(url: URL(string: url)!)
         
         let task = URLSession.shared.dataTask(with: request) { (data:Data?, response:URLResponse?, error:Error?) in

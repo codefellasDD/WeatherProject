@@ -7,9 +7,12 @@
 //
 
 import UIKit
+import Foundation
 import CoreLocation
 
 class WeatherTableViewController: UITableViewController,UISearchBarDelegate {
+    
+
 
     @IBOutlet weak var searchBar: UISearchBar!
     var forecastWeather = [Weather]()
@@ -35,7 +38,6 @@ class WeatherTableViewController: UITableViewController,UISearchBarDelegate {
                         if let weatherData = results {
                             self.forecastWeather = weatherData
                             DispatchQueue.main.async {
-                                self.navigationItem.title = "Wetterbericht"
                                 self.tableView.reloadData()
                             }
                         }
@@ -47,27 +49,26 @@ class WeatherTableViewController: UITableViewController,UISearchBarDelegate {
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return forecastWeather.count
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
         return 1
     }
 
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let weatherObject = forecastWeather[indexPath.row]
+        let weatherObject = forecastWeather[indexPath.section]
         cell.textLabel?.text = weatherObject.summary
-        cell.detailTextLabel?.text = "\(Int(weatherObject.temperature)) ⚬C"
+        let tempMin = convertToCelsius(fahrenheit: Int(weatherObject.temperatureMin))
+        let tempMax = convertToCelsius(fahrenheit: Int(weatherObject.temperatureMax))
+        cell.detailTextLabel?.text = "Min:\(tempMin) °C Max:\(tempMax) °C"
         cell.imageView?.image = UIImage(named: weatherObject.icon)
         return cell
     }
@@ -75,9 +76,13 @@ class WeatherTableViewController: UITableViewController,UISearchBarDelegate {
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         let date = Calendar.current.date(byAdding: .day, value: section, to: Date())
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MMMM.YYYY"
+        dateFormatter.dateFormat = "dd.MMMM YYYY"
         
         return dateFormatter.string(from: date!)
+    }
+    
+    func convertToCelsius(fahrenheit: Int) -> Int {
+        return Int(5.0 / 9.0 * (Double(fahrenheit) - 32.0))
     }
 
     /*
